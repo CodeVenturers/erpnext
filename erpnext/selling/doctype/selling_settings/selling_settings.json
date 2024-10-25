@@ -25,14 +25,15 @@
   "so_required",
   "dn_required",
   "sales_update_frequency",
-  "over_order_allowance",
+  "blanket_order_allowance",
   "column_break_5",
   "allow_multiple_items",
   "allow_against_multiple_purchase_orders",
   "allow_sales_order_creation_for_expired_quotation",
   "dont_reserve_sales_order_qty_on_sales_return",
   "hide_tax_id",
-  "enable_discount_accounting"
+  "enable_discount_accounting",
+  "enable_cutoff_date_on_bulk_delivery_note_creation"
  ],
  "fields": [
   {
@@ -184,12 +185,6 @@
    "label": "Allow Sales Order Creation For Expired Quotation"
   },
   {
-   "description": "Percentage you are allowed to order more against the Blanket Order Quantity. For example: If you have a Blanket Order of Quantity 100 units. and your Allowance is 10% then you are allowed to order 110 units.",
-   "fieldname": "over_order_allowance",
-   "fieldtype": "Float",
-   "label": "Over Order Allowance (%)"
-  },
-  {
    "default": "0",
    "fieldname": "dont_reserve_sales_order_qty_on_sales_return",
    "fieldtype": "Check",
@@ -200,6 +195,18 @@
    "fieldname": "allow_negative_rates_for_items",
    "fieldtype": "Check",
    "label": "Allow Negative rates for Items"
+  },
+  {
+   "description": "Percentage you are allowed to sell beyond the Blanket Order quantity.",
+   "fieldname": "blanket_order_allowance",
+   "fieldtype": "Float",
+   "label": "Blanket Order Allowance (%)"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_cutoff_date_on_bulk_delivery_note_creation",
+   "fieldtype": "Check",
+   "label": "Enable Cut-Off Date on Bulk Delivery Note Creation"
   }
  ],
  "icon": "fa fa-cog",
@@ -207,7 +214,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-08-14 20:33:05.693667",
+ "modified": "2024-03-27 13:10:38.633352",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Selling Settings",
@@ -232,7 +239,7 @@
    "write": 1
   }
  ],
- "sort_field": "modified",
+ "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
  "track_changes": 1

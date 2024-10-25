@@ -3,7 +3,7 @@
 
 import frappe
 from frappe.custom.doctype.custom_field.custom_field import create_custom_field
-from frappe.tests.utils import FrappeTestCase
+from frappe.tests import IntegrationTestCase, UnitTestCase
 from frappe.utils import nowdate, nowtime
 
 from erpnext.stock.doctype.delivery_note.test_delivery_note import create_delivery_note
@@ -19,7 +19,16 @@ from erpnext.stock.doctype.stock_entry.stock_entry_utils import make_stock_entry
 from erpnext.stock.doctype.warehouse.test_warehouse import create_warehouse
 
 
-class TestInventoryDimension(FrappeTestCase):
+class UnitTestInventoryDimension(UnitTestCase):
+	"""
+	Unit tests for InventoryDimension.
+	Use this class for testing individual functions and methods.
+	"""
+
+	pass
+
+
+class TestInventoryDimension(IntegrationTestCase):
 	def setUp(self):
 		prepare_test_data()
 		create_store_dimension()
@@ -210,9 +219,7 @@ class TestInventoryDimension(FrappeTestCase):
 		)
 
 		self.assertFalse(
-			frappe.db.get_value(
-				"Custom Field", {"fieldname": "project", "dt": "Stock Ledger Entry"}, "name"
-			)
+			frappe.db.get_value("Custom Field", {"fieldname": "project", "dt": "Stock Ledger Entry"}, "name")
 		)
 
 	def test_check_mandatory_dimensions(self):
@@ -296,9 +303,7 @@ class TestInventoryDimension(FrappeTestCase):
 		se_doc.save()
 		se_doc.submit()
 
-		entries = get_voucher_sl_entries(
-			se_doc.name, ["warehouse", "store", "incoming_rate", "actual_qty"]
-		)
+		entries = get_voucher_sl_entries(se_doc.name, ["warehouse", "store", "incoming_rate", "actual_qty"])
 
 		for entry in entries:
 			self.assertEqual(entry.warehouse, warehouse)
@@ -429,6 +434,14 @@ class TestInventoryDimension(FrappeTestCase):
 		)
 
 		warehouse = create_warehouse("Negative Stock Warehouse")
+
+		doc = make_stock_entry(item_code=item_code, source=warehouse, qty=10, do_not_submit=True)
+		doc.items[0].inv_site = "Site 1"
+		self.assertRaises(frappe.ValidationError, doc.submit)
+		doc.reload()
+		if doc.docstatus == 1:
+			doc.cancel()
+
 		doc = make_stock_entry(item_code=item_code, target=warehouse, qty=10, do_not_submit=True)
 
 		doc.items[0].to_inv_site = "Site 1"
@@ -480,7 +493,14 @@ def create_store_dimension():
 				"autoname": "field:store_name",
 				"fields": [{"label": "Store Name", "fieldname": "store_name", "fieldtype": "Data"}],
 				"permissions": [
-					{"role": "System Manager", "permlevel": 0, "read": 1, "write": 1, "create": 1, "delete": 1}
+					{
+						"role": "System Manager",
+						"permlevel": 0,
+						"read": 1,
+						"write": 1,
+						"create": 1,
+						"delete": 1,
+					}
 				],
 			}
 		).insert(ignore_permissions=True)
@@ -502,7 +522,14 @@ def prepare_test_data():
 				"autoname": "field:shelf_name",
 				"fields": [{"label": "Shelf Name", "fieldname": "shelf_name", "fieldtype": "Data"}],
 				"permissions": [
-					{"role": "System Manager", "permlevel": 0, "read": 1, "write": 1, "create": 1, "delete": 1}
+					{
+						"role": "System Manager",
+						"permlevel": 0,
+						"read": 1,
+						"write": 1,
+						"create": 1,
+						"delete": 1,
+					}
 				],
 			}
 		).insert(ignore_permissions=True)
@@ -524,7 +551,14 @@ def prepare_test_data():
 				"autoname": "field:rack_name",
 				"fields": [{"label": "Rack Name", "fieldname": "rack_name", "fieldtype": "Data"}],
 				"permissions": [
-					{"role": "System Manager", "permlevel": 0, "read": 1, "write": 1, "create": 1, "delete": 1}
+					{
+						"role": "System Manager",
+						"permlevel": 0,
+						"read": 1,
+						"write": 1,
+						"create": 1,
+						"delete": 1,
+					}
 				],
 			}
 		).insert(ignore_permissions=True)
@@ -546,7 +580,14 @@ def prepare_test_data():
 				"autoname": "field:pallet_name",
 				"fields": [{"label": "Pallet Name", "fieldname": "pallet_name", "fieldtype": "Data"}],
 				"permissions": [
-					{"role": "System Manager", "permlevel": 0, "read": 1, "write": 1, "create": 1, "delete": 1}
+					{
+						"role": "System Manager",
+						"permlevel": 0,
+						"read": 1,
+						"write": 1,
+						"create": 1,
+						"delete": 1,
+					}
 				],
 			}
 		).insert(ignore_permissions=True)
@@ -562,7 +603,14 @@ def prepare_test_data():
 				"autoname": "field:site_name",
 				"fields": [{"label": "Site Name", "fieldname": "site_name", "fieldtype": "Data"}],
 				"permissions": [
-					{"role": "System Manager", "permlevel": 0, "read": 1, "write": 1, "create": 1, "delete": 1}
+					{
+						"role": "System Manager",
+						"permlevel": 0,
+						"read": 1,
+						"write": 1,
+						"create": 1,
+						"delete": 1,
+					}
 				],
 			}
 		).insert(ignore_permissions=True)
@@ -615,9 +663,7 @@ def prepare_data_for_internal_transfer():
 
 	to_warehouse = create_warehouse("_Test Internal Warehouse GIT A", company=company)
 
-	pr_doc = make_purchase_receipt(
-		company=company, warehouse=warehouse, qty=10, rate=100, do_not_submit=True
-	)
+	pr_doc = make_purchase_receipt(company=company, warehouse=warehouse, qty=10, rate=100, do_not_submit=True)
 	pr_doc.items[0].store = "Inter Transfer Store 1"
 	pr_doc.submit()
 
@@ -643,9 +689,7 @@ def prepare_data_for_internal_transfer():
 
 	expene_account = frappe.db.get_value(
 		"Company", company, "stock_adjustment_account"
-	) or frappe.db.get_value(
-		"Account", {"company": company, "account_type": "Expense Account"}, "name"
-	)
+	) or frappe.db.get_value("Account", {"company": company, "account_type": "Expense Account"}, "name")
 
 	return frappe._dict(
 		{
